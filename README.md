@@ -22,6 +22,8 @@ Config: `BepInEx\config\com.dizzy.sailwind.gamma.cfg`
 
 ## Dizzy Calendar
 
+WARNING: WORK IN PROGRESS, REALLY FREAKING BROKEN RIGHT NOW
+
 Plugin: [`src/Dizzy.Calendar`](src/Dizzy.Calendar)
 
 Wall-mountable calendar ShipItem that shows the live in-game day (`Day N`) on its face and in look text.
