@@ -20,6 +20,8 @@ dotnet build src\Dizzy.Gamma\Dizzy.Gamma.csproj -c Release
 
 Config: `BepInEx\config\com.dizzy.sailwind.gamma.cfg`
 
+**Download:** [GitHub Releases](https://github.com/foxyv/dizzy_sailwind_mods/releases) — or build and package locally via [docs/RELEASE.md](docs/RELEASE.md).
+
 ## Dizzy Calendar
 
 WARNING: WORK IN PROGRESS, REALLY FREAKING BROKEN RIGHT NOW
@@ -52,6 +54,7 @@ Config: `BepInEx\config\com.dizzy.sailwind.calendar.cfg`
 
 | Doc | Purpose |
 |-----|---------|
+| [docs/RELEASE.md](docs/RELEASE.md) | Manual GitHub Releases (Gamma zip + publish checklist) |
 | [docs/SOURCES_OF_TRUTH.md](docs/SOURCES_OF_TRUTH.md) | Ranked references — what to trust when facts conflict |
 | [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) | Environment, toolchain, first plugin path |
 | [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) | Communities, mod hosts, example open-source mods |
