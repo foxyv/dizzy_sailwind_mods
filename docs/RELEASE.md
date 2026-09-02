@@ -27,23 +27,22 @@ Output: `src\Dizzy.Gamma\bin\Release\Dizzy.Gamma.dll`
 Or by hand:
 
 ```powershell
-$version = "0.1.2"
-$staging = "dist\Dizzy.Gamma-$version"
-$pluginDir = "$staging\BepInEx\plugins\Dizzy.Gamma"
+$version = "0.1.6"
+$pluginDir = "dist\Dizzy.Gamma-$version\Dizzy.Gamma"
 
 New-Item -ItemType Directory -Force -Path $pluginDir | Out-Null
 Copy-Item "src\Dizzy.Gamma\bin\Release\Dizzy.Gamma.dll" $pluginDir
-Compress-Archive -Path $staging\* -DestinationPath "dist\Dizzy.Gamma-$version.zip" -Force
+Compress-Archive -Path $pluginDir -DestinationPath "dist\Dizzy.Gamma-$version.zip" -Force
 ```
 
 Install layout inside the zip:
 
 ```
-BepInEx/plugins/Dizzy.Gamma/
+Dizzy.Gamma/
   Dizzy.Gamma.dll
 ```
 
-Users extract into their Sailwind folder (next to `Sailwind.exe`).
+Copy the `Dizzy.Gamma` folder into `BepInEx/plugins/` in your Sailwind install.
 
 ### 3. Publish on GitHub
 

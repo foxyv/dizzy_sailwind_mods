@@ -4,12 +4,13 @@
     <TargetFramework>net472</TargetFramework>
     <AssemblyName>Dizzy.Gamma</AssemblyName>
     <Product>Dizzy Gamma</Product>
-    <Version>0.1.2</Version>
+    <Version>0.2.0</Version>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <!-- Override: dotnet build -p:SailwindDir=C:\path\to\Sailwind -->
     <SailwindDir Condition="'$(SailwindDir)' == ''">D:\SteamLibrary\steamapps\common\Sailwind</SailwindDir>
+    <ManagedDir>$(SailwindDir)\Sailwind_Data\Managed</ManagedDir>
     <BepInExPluginsDir>$(SailwindDir)\BepInEx\plugins</BepInExPluginsDir>
   </PropertyGroup>
 
@@ -18,6 +19,13 @@
     <PackageReference Include="BepInEx.Core" Version="5.4.21" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.1.10" IncludeAssets="compile" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(ManagedDir)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <Target Name="DeployToSailwind" AfterTargets="Build" Condition="'$(DeployOnBuild)' != 'false' And Exists('$(BepInExPluginsDir)')">

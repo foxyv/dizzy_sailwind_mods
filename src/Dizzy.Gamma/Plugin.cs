@@ -11,7 +11,7 @@ namespace Dizzy.Gamma
     {
         public const string PluginGuid = "com.dizzy.sailwind.gamma";
         public const string PluginName = "Dizzy Gamma";
-        public const string PluginVersion = "0.1.2";
+        public const string PluginVersion = "0.2.0";
 
         public const float MinGamma = 0.5f;
         public const float MaxGamma = 2.5f;
@@ -40,6 +40,8 @@ namespace Dizzy.Gamma
 
         // Camera.onPreRender can fire for several cameras per frame; only boost ambient once.
         private int _lastAmbientBoostFrame = -1;
+        private int _lastPanelToggleFrame = -1;
+        private Coroutine _cursorCleanupCoroutine;
 
         public static float CurrentGamma => Instance != null ? Instance._gamma.Value : 1f;
 
@@ -92,7 +94,13 @@ namespace Dizzy.Gamma
             Camera.onPreRender -= ApplyAmbientBoost;
 
             if (_showPanel)
-                RestoreCursor();
+                RestoreCursorAfterPanelClose();
+
+            if (_cursorCleanupCoroutine != null)
+            {
+                StopCoroutine(_cursorCleanupCoroutine);
+                _cursorCleanupCoroutine = null;
+            }
 
             if (Instance == this)
                 Instance = null;
@@ -144,14 +152,49 @@ namespace Dizzy.Gamma
 
         private void Update()
         {
-            if (_menuKey.Value.IsDown())
-                SetPanelVisible(!_showPanel);
+            HandlePanelToggle();
+            TryHideStrayGameplayCursor();
 
             if (_gammaUpKey.Value.IsDown())
                 AdjustGamma(_step.Value);
 
             if (_gammaDownKey.Value.IsDown())
                 AdjustGamma(-_step.Value);
+        }
+
+        private void HandlePanelToggle()
+        {
+            if (Time.frameCount == _lastPanelToggleFrame)
+                return;
+
+            bool isDown = _menuKey.Value.IsDown();
+            bool getKeyDown = Input.GetKeyDown(_menuKey.Value.MainKey);
+            if (!WasMenuKeyPressedThisFrame(isDown, getKeyDown))
+                return;
+
+            _lastPanelToggleFrame = Time.frameCount;
+            SetPanelVisible(!_showPanel);
+        }
+
+        private bool WasMenuKeyPressedThisFrame(bool isDown, bool getKeyDown)
+        {
+            // Input.GetKeyDown is independent of IMGUI Event.Use() from other mods.
+            if (getKeyDown)
+                return _menuKey.Value.IsDown();
+
+            return isDown;
+        }
+
+        private static void TryHideStrayGameplayCursor()
+        {
+            if (Instance == null || Instance._showPanel)
+                return;
+            if (GameState.inCursorMenu || !GameState.playing)
+                return;
+            if (!Cursor.visible)
+                return;
+
+            ApplyGameplayCursor();
         }
 
         private void LateUpdate()
@@ -163,7 +206,11 @@ namespace Dizzy.Gamma
 
             // Sailwind re-hides/locks the cursor each frame while playing; keep ours usable over the panel.
             if (_showPanel)
+            {
                 ApplyMenuCursor();
+                // Poll again before OnGUI — other mods may consume IMGUI KeyDown events.
+                HandlePanelToggle();
+            }
         }
 
         private void SetPanelVisible(bool visible)
@@ -173,16 +220,30 @@ namespace Dizzy.Gamma
 
             if (visible)
             {
-                _savedCursorVisible = Cursor.visible;
-                _savedCursorLock = Cursor.lockState;
+                CaptureCursorStateForPanelOpen();
                 _showPanel = true;
                 ApplyMenuCursor();
             }
             else
             {
                 _showPanel = false;
-                RestoreCursor();
+                _panelCentered = false;
+                RestoreCursorAfterPanelClose();
             }
+        }
+
+        private void CaptureCursorStateForPanelOpen()
+        {
+            if (GameState.inCursorMenu)
+            {
+                _savedCursorVisible = Cursor.visible;
+                _savedCursorLock = Cursor.lockState;
+                return;
+            }
+
+            // During gameplay, other mod panels don't set inCursorMenu — don't save their cursor state.
+            _savedCursorVisible = false;
+            _savedCursorLock = CursorLockMode.Locked;
         }
 
         private static void ApplyMenuCursor()
@@ -191,16 +252,64 @@ namespace Dizzy.Gamma
             Cursor.lockState = CursorLockMode.None;
         }
 
-        private void RestoreCursor()
+        private static void ApplyGameplayCursor()
         {
-            Cursor.visible = _savedCursorVisible;
-            Cursor.lockState = _savedCursorLock;
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+
+        private void RestoreCursorAfterPanelClose()
+        {
+            if (GameState.inCursorMenu)
+            {
+                Cursor.visible = _savedCursorVisible;
+                Cursor.lockState = _savedCursorLock;
+                return;
+            }
+
+            ApplyGameplayCursor();
+            ScheduleCursorCleanup();
+        }
+
+        private void ScheduleCursorCleanup()
+        {
+            if (_cursorCleanupCoroutine != null)
+                StopCoroutine(_cursorCleanupCoroutine);
+
+            _cursorCleanupCoroutine = StartCoroutine(CursorCleanupRoutine());
+        }
+
+        private System.Collections.IEnumerator CursorCleanupRoutine()
+        {
+            yield return null;
+            yield return null;
+            TryApplyGameplayCursorIfStray();
+
+            yield return new WaitForSeconds(0.25f);
+            TryApplyGameplayCursorIfStray();
+
+            yield return new WaitForSeconds(0.25f);
+            TryApplyGameplayCursorIfStray();
+
+            _cursorCleanupCoroutine = null;
+        }
+
+        private static void TryApplyGameplayCursorIfStray()
+        {
+            if (Instance == null || Instance._showPanel || GameState.inCursorMenu || !Cursor.visible)
+                return;
+
+            ApplyGameplayCursor();
         }
 
         private void OnGUI()
         {
             if (!_showPanel)
                 return;
+
+            // Poll via Input (not Event.current) so Sailmaster cannot block us with e.Use().
+            if (Event.current.type == EventType.Layout)
+                HandlePanelToggle();
 
             if (!_panelCentered)
             {

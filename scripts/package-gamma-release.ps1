@@ -1,8 +1,8 @@
 # Packages Dizzy.Gamma for GitHub Releases.
-# Usage: .\scripts\package-gamma-release.ps1 [-Version 0.1.2]
+# Usage: .\scripts\package-gamma-release.ps1 [-Version 0.2.0]
 
 param(
-    [string]$Version = "0.1.2"
+    [string]$Version = "0.2.0"
 )
 
 $ErrorActionPreference = "Stop"
@@ -20,17 +20,20 @@ if (-not (Test-Path $dll)) {
 }
 
 $staging = "dist\Dizzy.Gamma-$Version"
-$pluginDir = "$staging\BepInEx\plugins\Dizzy.Gamma"
+$pluginDir = "$staging\Dizzy.Gamma"
 $zipPath = "dist\Dizzy.Gamma-$Version.zip"
 $notesPath = "dist\GITHUB_RELEASE_NOTES-v$Version.md"
 
+if (Test-Path $staging) {
+    Remove-Item $staging -Recurse -Force
+}
 New-Item -ItemType Directory -Force -Path $pluginDir | Out-Null
 Copy-Item $dll $pluginDir -Force
 
 if (Test-Path $zipPath) {
     Remove-Item $zipPath -Force
 }
-Compress-Archive -Path "$staging\*" -DestinationPath $zipPath -Force
+Compress-Archive -Path $pluginDir -DestinationPath $zipPath -Force
 
 $notes = @"
 ## Install
@@ -38,12 +41,15 @@ $notes = @"
 Requires Sailwind + [BepInEx 5](https://thunderstore.io/c/sailwind/p/BepInEx/BepInExPack/) (Thunderstore BepInExPack recommended).
 
 1. Download `Dizzy.Gamma-$Version.zip` below.
-2. Extract into your Sailwind game folder (same folder as `Sailwind.exe`), merging `BepInEx\plugins\Dizzy.Gamma\`.
+2. Extract the `Dizzy.Gamma` folder into `BepInEx\plugins\` (next to `Sailwind.exe`: `Sailwind\BepInEx\plugins\Dizzy.Gamma\`).
 3. Launch the game.
 
 ## Contents
 
-- `Dizzy.Gamma.dll` - brightens dark scenes via ambient lighting boost (UI stays vanilla)
+```
+Dizzy.Gamma/
+  Dizzy.Gamma.dll
+```
 
 ## In-game
 
