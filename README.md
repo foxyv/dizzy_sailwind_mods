@@ -22,6 +22,8 @@ Config: `BepInEx\config\com.dizzy.sailwind.gamma.cfg`
 
 **Download:** [GitHub Releases](https://github.com/foxyv/dizzy_sailwind_mods/releases) — or build and package locally via [docs/RELEASE.md](docs/RELEASE.md).
 
+Compatible with [ModVersionChecker](https://github.com/bryon82/SailwindModVersionChecker) when installed (optional; not a dependency).
+
 ## Dizzy Calendar
 
 WARNING: WORK IN PROGRESS, REALLY FREAKING BROKEN RIGHT NOW

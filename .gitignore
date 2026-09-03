@@ -23,3 +23,6 @@ Desktop.ini
 
 ## Release packaging (manual GitHub Releases)
 dist/
+
+## Local clones of upstream repos (e.g. ModVersionChecker PR work)
+_upstream/

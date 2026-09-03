@@ -44,6 +44,8 @@ Requires Sailwind + [BepInEx 5](https://thunderstore.io/c/sailwind/p/BepInEx/Bep
 2. Extract the `Dizzy.Gamma` folder into `BepInEx\plugins\` (next to `Sailwind.exe`: `Sailwind\BepInEx\plugins\Dizzy.Gamma\`).
 3. Launch the game.
 
+Optional: [ModVersionChecker](https://github.com/bryon82/SailwindModVersionChecker) can notify you when a newer release is available.
+
 ## Contents
 
 ```

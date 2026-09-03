@@ -68,9 +68,22 @@ gh release create v0.1.2 dist\Dizzy.Gamma-0.1.2.zip --title "Dizzy Gamma 0.1.2" 
 
 ### 4. Bump version next time
 
-1. Update `PluginVersion` in [`src/Dizzy.Gamma/Plugin.cs`](../src/Dizzy.Gamma/Plugin.cs) and `<Version>` in [`src/Dizzy.Gamma/Dizzy.Gamma.csproj`](../src/Dizzy.Gamma/Dizzy.Gamma.csproj)
-2. Rebuild, re-run `package-gamma-release.ps1` with the new version in the script (or pass `-Version`)
-3. New tag `vX.Y.Z` and new zip on GitHub Releases
+| Step | Action |
+|------|--------|
+| Version bump | Keep `PluginVersion` in [`src/Dizzy.Gamma/Plugin.cs`](../src/Dizzy.Gamma/Plugin.cs) and `<Version>` in [`src/Dizzy.Gamma/Dizzy.Gamma.csproj`](../src/Dizzy.Gamma/Dizzy.Gamma.csproj) in sync |
+| Package | Rebuild, re-run `package-gamma-release.ps1` with `-Version X.Y.Z` |
+| GitHub tag | Always `vX.Y.Z` matching the plugin version (required for ModVersionChecker) |
+| ModVersionChecker | No action after the initial listing; update prompts break only if the tag ≠ plugin version |
+
+### 5. ModVersionChecker
+
+[Sailwind ModVersionChecker](https://github.com/bryon82/SailwindModVersionChecker) (optional for players) compares installed BepInEx plugin versions against GitHub release tags.
+
+- **Listing:** Dizzy Gamma is registered in upstream [`ModList.json`](https://github.com/bryon82/SailwindModVersionChecker/blob/main/ModList.json) as GUID `com.dizzy.sailwind.gamma` → `https://github.com/foxyv/dizzy_sailwind_mods`. Adding or changing listings is done via PR to that repo.
+- **Tag rule:** Release tags must be `vX.Y.Z` and match `PluginVersion` (e.g. tag `v0.2.0` ↔ `PluginVersion = "0.2.0"`).
+- **After each release:** No extra steps once listed. An hourly upstream Action refreshes `release_versions.json` from GitHub releases (plus CDN cache lag).
+
+Do **not** list Dizzy Calendar from this monorepo until it ships with independent versioning — ModVersionChecker uses the repo’s latest tag for every GUID that points here.
 
 ---
 
